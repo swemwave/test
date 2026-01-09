@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <title>Pannellum Multires</title>
   <link rel="stylesheet" href="./vendor/pannellum/pannellum.css">
+  <link rel="stylesheet" href="main.css".css">
   <style>
     html, body { height: 100%; margin: 0; }
     #panorama { width: 100%; height: 100%; }
@@ -12,15 +13,10 @@
 <body>
   <div id="panorama"></div>
 
+  <div id="minimap"><canvas id="miniCanvas"></canvas></div>
+
   <!-- Load Pannellum -->
   <script src="./vendor/pannellum/pannellum.js"></script>
-
-  <!-- Load your generated tour -->
-<script>
-  fetch("./scenedata/tour.json")
-    .then(r => r.json())
-    .then(cfg => pannellum.viewer("panorama", cfg))
-    .catch(console.error);
-</script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
