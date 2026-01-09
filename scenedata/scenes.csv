@@ -1,0 +1,11 @@
+id,type,floor,section,notes,filename,heading,moveHeading,stepMeters
+01,cp,2,MB,"Womens Washroom, Stairs & Escalator",MB_F02_cp_01.jpg,N,E,5
+02,gen,2,MB,"Bridge Connection to MC",MB_F02_gen_02.jpg,E,N,5
+03,gen,2,MB,"Hallway1(a)",MB_F02_gen_03.jpg,N,N,5
+04,gen,2,MB,"Hallway1(b)",MB_F02_gen_04.jpg,N,N,5
+05,dest,2,MB,"Student Experience Office (SAITSA (MB216)",MB_F02_dest_05.jpg,N,N,5
+06,gen,2,MB,"Hallway1(c)",MB_F02_gen_06.jpg,E,45,5
+07,gen,2,MB,"Bridge Connection to MC",MB_F02_gen_07.jpg,E,345,5
+08,dest,2,MB,"MB228",MB_F02_dest_08.jpg,W,255,5
+09,cp,2,MB,"Mens Washroom & Stairs",MB_F02_cp_09.jpg,E,W,5
+10,dest,2,MB,"Water Fountain",MB_F02_dest_10.jpg,E,,5

@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Node Map Viewer</title>
+  <style>
+    html, body { height: 100%; margin: 0; font-family: system-ui, Arial; }
+    #wrap { display: grid; grid-template-columns: 320px 1fr; height: 100%; }
+    #panel { padding: 12px; border-right: 1px solid #ddd; overflow: auto; }
+    #canvas { width: 100%; height: 100%; display: block; background: #fafafa; }
+    .row { margin: 8px 0; }
+    label { display: block; font-size: 12px; opacity: 0.8; margin-bottom: 4px; }
+    input[type="range"] { width: 100%; }
+    code { font-size: 12px; }
+    .pill { display:inline-block; padding:2px 8px; border:1px solid #ccc; border-radius:999px; margin-right:6px; font-size:12px;}
+  </style>
+</head>
+<body>
+<div id="wrap">
+  <div id="panel">
+    <h3 style="margin:0 0 8px;">Node Map Viewer</h3>
+    <div class="row">
+      <span class="pill" id="status">loading…</span>
+    </div>
+
+    <div class="row">
+      <label>Scale</label>
+      <input id="scale" type="range" min="5" max="80" value="25" />
+      <div><code id="scaleVal"></code></div>
+    </div>
+
+    <div class="row">
+      <label>Point size</label>
+      <input id="pt" type="range" min="2" max="14" value="6" />
+      <div><code id="ptVal"></code></div>
+    </div>
+
+    <div class="row">
+      <label><input id="showIds" type="checkbox" checked /> Show IDs</label>
+      <label><input id="showHeading" type="checkbox" checked /> Show heading arrows</label>
+      <label><input id="showEdges" type="checkbox" checked /> Show edges</label>
+    </div>
+
+    <div class="row">
+      <label>Selected node</label>
+      <div><code id="sel">none</code></div>
+    </div>
+
+    <div class="row">
+      <label>Hover node</label>
+      <div><code id="hover">none</code></div>
+    </div>
+
+    <hr />
+
+    <div style="font-size:12px; line-height:1.4;">
+      <b>Paths it loads:</b><br/>
+      <code>../scenedata/nodes.csv</code><br/>
+      <code>../scenedata/edges.csv</code> (optional)<br/>
+      <code>../scenedata/manual_edges.csv</code> (optional)<br/>
+      <br/>
+      If edges files don’t exist, it will draw <b>sequential links</b>.
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+</div>
+
+<script>
+const PATHS = {
+  nodes: "../scenedata/nodes.csv",
+  edges: "../scenedata/edges.csv",
+  manual: "../scenedata/manual_edges.csv",
+};
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const ui = {
+  status: document.getElementById("status"),
+  scale: document.getElementById("scale"),
+  scaleVal: document.getElementById("scaleVal"),
+  pt: document.getElementById("pt"),
+  ptVal: document.getElementById("ptVal"),
+  showIds: document.getElementById("showIds"),
+  showHeading: document.getElementById("showHeading"),
+  showEdges: document.getElementById("showEdges"),
+  sel: document.getElementById("sel"),
+  hover: document.getElementById("hover"),
+};
+
+let nodes = [];              // {id,x,y,headingDeg}
+let edges = [];              // {from,to}
+let selectedId = null;
+let hoverId = null;
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+  const header = splitCSVLine(lines.shift()).map(s => s.trim());
+  return lines.map(line => {
+    const cols = splitCSVLine(line);
+    const row = {};
+    header.forEach((h,i) => row[h] = (cols[i] ?? "").trim());
+    return row;
+  });
+}
+
+// minimal quoted CSV split
+function splitCSVLine(line) {
+  const out = [];
+  let cur = "", inQ = false;
+  for (let i=0;i<line.length;i++){
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      out.push(cur); cur = "";
+    } else cur += ch;
+  }
+  out.push(cur);
+  return out;
+}
+
+async function tryFetchCSV(url) {
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) return null;
+    return parseCSV(await r.text());
+  } catch {
+    return null;
+  }
+}
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(canvas.clientWidth * dpr);
+  canvas.height = Math.floor(canvas.clientHeight * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+
+function getBounds() {
+  const xs = nodes.map(n => n.x);
+  const ys = nodes.map(n => n.y);
+  return {
+    minX: Math.min(...xs), maxX: Math.max(...xs),
+    minY: Math.min(...ys), maxY: Math.max(...ys),
+  };
+}
+
+function worldToScreen(n, bounds, scale, pad) {
+  // center bounds in canvas
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  const cx = (bounds.minX + bounds.maxX) / 2;
+  const cy = (bounds.minY + bounds.maxY) / 2;
+
+  // y is already "north = up" in your node space, so we can map directly
+  const sx = (n.x - cx) * scale + w/2;
+  const sy = (n.y - cy) * scale + h/2;
+
+  return { sx, sy };
+}
+
+function drawArrow(x, y, deg, len) {
+  const rad = (deg * Math.PI) / 180;
+  // heading: 0=North (up). Our screen y grows downward,
+  // so North should be negative y.
+  const dx = Math.sin(rad) * len;
+  const dy = -Math.cos(rad) * len;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + dx, y + dy);
+  ctx.stroke();
+
+  // arrow head
+  const ah = 6;
+  const ang = Math.atan2(dy, dx);
+  ctx.beginPath();
+  ctx.moveTo(x + dx, y + dy);
+  ctx.lineTo(x + dx - ah*Math.cos(ang-0.6), y + dy - ah*Math.sin(ang-0.6));
+  ctx.lineTo(x + dx - ah*Math.cos(ang+0.6), y + dy - ah*Math.sin(ang+0.6));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function draw() {
+  ui.scaleVal.textContent = ui.scale.value;
+  ui.ptVal.textContent = ui.pt.value;
+
+  ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
+
+  if (!nodes.length) return;
+
+  const scale = Number(ui.scale.value);
+  const pt = Number(ui.pt.value);
+  const bounds = getBounds();
+
+  const pos = new Map();
+  for (const n of nodes) {
+    pos.set(n.id, worldToScreen(n, bounds, scale, 20));
+  }
+
+  // edges
+  if (ui.showEdges.checked) {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#bbb";
+    for (const e of edges) {
+      const a = pos.get(e.from);
+      const b = pos.get(e.to);
+      if (!a || !b) continue;
+      ctx.beginPath();
+      ctx.moveTo(a.sx, a.sy);
+      ctx.lineTo(b.sx, b.sy);
+      ctx.stroke();
+    }
+  }
+
+  // highlight selected edges
+  if (selectedId && ui.showEdges.checked) {
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#333";
+    for (const e of edges) {
+      if (e.from !== selectedId && e.to !== selectedId) continue;
+      const a = pos.get(e.from);
+      const b = pos.get(e.to);
+      if (!a || !b) continue;
+      ctx.beginPath();
+      ctx.moveTo(a.sx, a.sy);
+      ctx.lineTo(b.sx, b.sy);
+      ctx.stroke();
+    }
+  }
+
+  // nodes
+  for (const n of nodes) {
+    const p = pos.get(n.id);
+    const isSel = n.id === selectedId;
+    const isHover = n.id === hoverId;
+
+    ctx.fillStyle = isSel ? "#111" : isHover ? "#555" : "#888";
+    ctx.beginPath();
+    ctx.arc(p.sx, p.sy, pt, 0, Math.PI*2);
+    ctx.fill();
+
+    if (ui.showHeading.checked) {
+      ctx.strokeStyle = isSel ? "#111" : "#666";
+      ctx.fillStyle = isSel ? "#111" : "#666";
+      drawArrow(p.sx, p.sy, Number(n.headingDeg), 22);
+    }
+
+    if (ui.showIds.checked) {
+      ctx.fillStyle = "#000";
+      ctx.font = "12px system-ui";
+      ctx.fillText(n.id, p.sx + pt + 4, p.sy - pt - 2);
+    }
+  }
+}
+
+function nearestNode(mouseX, mouseY) {
+  if (!nodes.length) return null;
+  const scale = Number(ui.scale.value);
+  const bounds = getBounds();
+  let best = null, bestD = Infinity;
+
+  for (const n of nodes) {
+    const p = worldToScreen(n, bounds, scale, 20);
+    const dx = p.sx - mouseX;
+    const dy = p.sy - mouseY;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d < bestD) { bestD = d; best = n; }
+  }
+  return bestD <= 18 ? best : null;
+}
+
+canvas.addEventListener("mousemove", (ev) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+
+  const n = nearestNode(mx, my);
+  hoverId = n ? n.id : null;
+  ui.hover.textContent = n ? `${n.id} (x=${n.x}, y=${n.y}, heading=${n.headingDeg})` : "none";
+  draw();
+});
+
+canvas.addEventListener("click", (ev) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = ev.clientX - rect.left;
+  const my = ev.clientY - rect.top;
+
+  const n = nearestNode(mx, my);
+  selectedId = n ? n.id : null;
+  ui.sel.textContent = n ? `${n.id} (x=${n.x}, y=${n.y}, heading=${n.headingDeg})` : "none";
+  draw();
+});
+
+for (const el of [ui.scale, ui.pt, ui.showIds, ui.showHeading, ui.showEdges]) {
+  el.addEventListener("input", draw);
+}
+
+async function main() {
+  ui.status.textContent = "loading files…";
+
+  const nodesRows = await tryFetchCSV(PATHS.nodes);
+  if (!nodesRows) {
+    ui.status.textContent = "FAILED to load nodes.csv";
+    return;
+  }
+  nodes = nodesRows.map(r => ({
+    id: r.id,
+    x: Number(r.x),
+    y: Number(r.y),
+    headingDeg: Number(r.headingDeg),
+  })).filter(n => n.id && Number.isFinite(n.x) && Number.isFinite(n.y));
+
+  // Try load edges; if missing, build sequential from node order
+  const edgesRows = await tryFetchCSV(PATHS.edges);
+  const manualRows = await tryFetchCSV(PATHS.manual);
+
+  const allEdges = [];
+  if (edgesRows) allEdges.push(...edgesRows);
+  if (manualRows) allEdges.push(...manualRows);
+
+  if (allEdges.length) {
+    edges = allEdges
+      .map(e => ({ from: (e.from ?? "").trim(), to: (e.to ?? "").trim() }))
+      .filter(e => e.from && e.to);
+  } else {
+    // fallback: sequential edges by numeric id order
+    const sorted = [...nodes].sort((a,b)=>Number(a.id)-Number(b.id));
+    edges = [];
+    for (let i=0;i<sorted.length-1;i++){
+      edges.push({ from: sorted[i].id, to: sorted[i+1].id });
+    }
+  }
+
+  ui.status.textContent = `loaded ${nodes.length} nodes, ${edges.length} edges`;
+  resize();
+}
+
+window.addEventListener("resize", resize);
+main();
+</script>
+</body>
+</html>

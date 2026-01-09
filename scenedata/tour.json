@@ -1,0 +1,333 @@
+{
+  "default": {
+    "firstScene": "MB_F02_cp_01",
+    "sceneFadeDuration": 200,
+    "autoLoad": true
+  },
+  "scenes": {
+    "MB_F02_cp_01": {
+      "title": "Womens Washroom, Stairs & Escalator",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": 0,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_cp_01",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Bridge Connection to MC",
+          "sceneId": "MB_F02_gen_02",
+          "pitch": -5,
+          "yaw": 90,
+          "targetYaw": 0
+        }
+      ]
+    },
+    "MB_F02_gen_02": {
+      "title": "Bridge Connection to MC",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": -90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_gen_02",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Womens Washroom, Stairs & Escalator",
+          "sceneId": "MB_F02_cp_01",
+          "pitch": -5,
+          "yaw": 180,
+          "targetYaw": -90
+        },
+        {
+          "type": "scene",
+          "text": "Hallway1(a)",
+          "sceneId": "MB_F02_gen_03",
+          "pitch": -5,
+          "yaw": -90,
+          "targetYaw": 0
+        }
+      ]
+    },
+    "MB_F02_gen_03": {
+      "title": "Hallway1(a)",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": 0,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_gen_03",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Bridge Connection to MC",
+          "sceneId": "MB_F02_gen_02",
+          "pitch": -5,
+          "yaw": 180,
+          "targetYaw": 90
+        },
+        {
+          "type": "scene",
+          "text": "Hallway1(b)",
+          "sceneId": "MB_F02_gen_04",
+          "pitch": -5,
+          "yaw": 0,
+          "targetYaw": 0
+        }
+      ]
+    },
+    "MB_F02_gen_04": {
+      "title": "Hallway1(b)",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": 0,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_gen_04",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Hallway1(a)",
+          "sceneId": "MB_F02_gen_03",
+          "pitch": -5,
+          "yaw": 180,
+          "targetYaw": 180
+        },
+        {
+          "type": "scene",
+          "text": "Student Experience Office (SAITSA (MB216)",
+          "sceneId": "MB_F02_dest_05",
+          "pitch": -5,
+          "yaw": 0,
+          "targetYaw": 0
+        }
+      ]
+    },
+    "MB_F02_dest_05": {
+      "title": "Student Experience Office (SAITSA (MB216)",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": 0,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_dest_05",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Hallway1(b)",
+          "sceneId": "MB_F02_gen_04",
+          "pitch": -5,
+          "yaw": 180,
+          "targetYaw": 180
+        },
+        {
+          "type": "scene",
+          "text": "Hallway1(c)",
+          "sceneId": "MB_F02_gen_06",
+          "pitch": -5,
+          "yaw": 0,
+          "targetYaw": -90
+        }
+      ]
+    },
+    "MB_F02_gen_06": {
+      "title": "Hallway1(c)",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": -90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_gen_06",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Student Experience Office (SAITSA (MB216)",
+          "sceneId": "MB_F02_dest_05",
+          "pitch": -5,
+          "yaw": 90,
+          "targetYaw": 180
+        },
+        {
+          "type": "scene",
+          "text": "Bridge Connection to MC",
+          "sceneId": "MB_F02_gen_07",
+          "pitch": -5,
+          "yaw": -45,
+          "targetYaw": -45
+        }
+      ]
+    },
+    "MB_F02_gen_07": {
+      "title": "Bridge Connection to MC",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": -90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_gen_07",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Hallway1(c)",
+          "sceneId": "MB_F02_gen_06",
+          "pitch": -5,
+          "yaw": 135,
+          "targetYaw": 135
+        },
+        {
+          "type": "scene",
+          "text": "MB228",
+          "sceneId": "MB_F02_dest_08",
+          "pitch": -5,
+          "yaw": -135,
+          "targetYaw": 45
+        }
+      ]
+    },
+    "MB_F02_dest_08": {
+      "title": "MB228",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": 90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_dest_08",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Bridge Connection to MC",
+          "sceneId": "MB_F02_gen_07",
+          "pitch": -5,
+          "yaw": -135,
+          "targetYaw": 45
+        },
+        {
+          "type": "scene",
+          "text": "Mens Washroom & Stairs",
+          "sceneId": "MB_F02_cp_09",
+          "pitch": -5,
+          "yaw": -45,
+          "targetYaw": 135
+        }
+      ]
+    },
+    "MB_F02_cp_09": {
+      "title": "Mens Washroom & Stairs",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": -90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_cp_09",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "MB228",
+          "sceneId": "MB_F02_dest_08",
+          "pitch": -5,
+          "yaw": -45,
+          "targetYaw": 135
+        },
+        {
+          "type": "scene",
+          "text": "Water Fountain",
+          "sceneId": "MB_F02_dest_10",
+          "pitch": -5,
+          "yaw": 180,
+          "targetYaw": 180
+        }
+      ]
+    },
+    "MB_F02_dest_10": {
+      "title": "Water Fountain",
+      "type": "multires",
+      "hfov": 100,
+      "yaw": -90,
+      "pitch": 0,
+      "multiRes": {
+        "basePath": "./scenes/MB_F02_dest_10",
+        "path": "/%l/%s%y_%x",
+        "fallbackPath": "/fallback/%s",
+        "extension": "jpg",
+        "tileResolution": 512,
+        "maxLevel": 4,
+        "cubeResolution": 3784
+      },
+      "hotSpots": [
+        {
+          "type": "scene",
+          "text": "Mens Washroom & Stairs",
+          "sceneId": "MB_F02_cp_09",
+          "pitch": -5,
+          "yaw": 0,
+          "targetYaw": 0
+        }
+      ]
+    }
+  }
+}
